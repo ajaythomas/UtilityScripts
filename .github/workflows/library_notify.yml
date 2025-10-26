@@ -1,0 +1,39 @@
+name: AADL Notifier
+on:
+  schedule:
+    - cron: "0 * * * *"  # hourly
+  workflow_dispatch:
+
+jobs:
+  check_aadl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests beautifulsoup4
+      - name: Check AADL and send email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          python <<'EOF'
+          import os, requests
+          from bs4 import BeautifulSoup
+
+          catalog_base_url = "https://aadl.org/catalog/record/{}"
+          full_url = catalog_base_url.format(lib_rec)
+          r = requests.get(full_url)
+          r.raise_for_status()
+          if "<td>On Shelf</td>" in r.text:
+              requests.post(
+                  "https://api.resend.com/emails",
+                  headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
+                  json={
+                      "from": "AADL Notifier <on@resend.dev>",
+                      "to": ["ajaythomas.inc@gmail.com"],
+                      "subject": "Book is on shelf!",
+                      "html": f"Your book is now available."
+                  }
+              )
+          EOF
