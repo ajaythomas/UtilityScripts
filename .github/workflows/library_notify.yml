@@ -1,7 +1,16 @@
 name: AADL Notifier
 on:
   schedule:
-    - cron: "0 * * * *"  # hourly
+    - cron: "30 14 * * *"  # 10:30am ET OR 2.30 PM UTC
+    - cron: "30 15 * * *"  # 11:30am ET
+    - cron: "30 16 * * *"  # 12:30pm ET
+    - cron: "30 17 * * *"  # 1:30pm ET
+    - cron: "30 18 * * *"  # 2:30pm ET
+    - cron: "30 19 * * *"  # 3:30pm ET
+    - cron: "30 20 * * *"  # 4:30pm ET
+    - cron: "30 21 * * *"  # 5:30pm ET
+    - cron: "30 22 * * *"  # 6:30pm ET
+    - cron: "30 23 * * *"  # 7:30pm ET
   workflow_dispatch:
 
 jobs:
@@ -16,6 +25,7 @@ jobs:
       - name: Check AADL and send email
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          TO_EMAIL: ${{secrets.TO_EMAIL}}
         run: |
           python <<'EOF'
           import os, requests
@@ -32,7 +42,7 @@ jobs:
                   headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
                   json={
                       "from": "AADL Notifier <on@resend.dev>",
-                      "to": ["ajaythomas.inc@gmail.com"],
+                      "to": [{os.environ['TO_EMAIL']}],
                       "subject": "Book is on shelf!",
                       "html": f"Your book is now available."
                   }
