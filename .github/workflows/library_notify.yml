@@ -21,8 +21,9 @@ jobs:
           import os, requests
           from bs4 import BeautifulSoup
 
+          book_record = "10732671"
           catalog_base_url = "https://aadl.org/catalog/record/{}"
-          full_url = catalog_base_url.format(lib_rec)
+          full_url = catalog_base_url.format(book_record)
           r = requests.get(full_url)
           r.raise_for_status()
           if "<td>On Shelf</td>" in r.text:
